@@ -49,14 +49,13 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal Error",
                     content = @Content)})
     @GetMapping(produces = { "application/json" })
-    public ResponseEntity<List<DataModelResponse<UserDataModelResponse>>> getUsers(
+    public ResponseEntity<DataModelResponse<User>> getUsers(
             @Parameter(description = "Page index (start from 0)") @RequestParam(value = "page") Integer page,
             @Parameter(description = "Number of records per page") @RequestParam(value = "pageSize") Integer pageSize) {
 
         List<User> userList = userService.listUsers(page,pageSize);
 
-        return new ResponseEntity(userList.stream().map(user -> dataUserMapper.modelToResponse(user))
-                .collect(Collectors.toList()),HttpStatus.OK);
+        return new ResponseEntity(new DataModelResponse<>(userList), HttpStatus.OK);
     }
 
     @Operation(summary = "Get a user by its cpf")
@@ -69,9 +68,9 @@ public class UserController {
                     content = @Content),
             @ApiResponse(responseCode = "500", description = "Internal Error",
                     content = @Content) })
-    @GetMapping(value = "/{cpf}", produces = { "application/json" })
+    @GetMapping(value = "/by_cpf", produces = { "application/json" })
     public ResponseEntity<User> getuserByCpf(
-            @Parameter(description = "cpf of user to be retrieved") @PathVariable String cpf){
+            @Parameter(description = "cpf of user to be retrieved") @RequestParam String cpf){
         
         User user = userService.getUserByCpf(cpf);
 
@@ -93,7 +92,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Internal Error",
                     content = @Content) })
     @PostMapping
-    public ResponseEntity<DataModelResponse<UserDataModelResponse>> createUser(@RequestBody UserRequest request){
+    public ResponseEntity<DataModelResponse<UserDataModelResponse>> createUser(@RequestBody UserRequest request) {
 
         User user = userService.saveUser(dataUserMapper.requestToModel(request));
 
@@ -112,7 +111,7 @@ public class UserController {
     
     @ExceptionHandler({ RuntimeException.class })
     public ResponseEntity<String> handleRuntimeException() {
-        return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity(handleRuntimeException().getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({ DataIntegrityViolationException.class })

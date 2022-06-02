@@ -1,16 +1,19 @@
 package com.challange.usermanagerrest.dataprovider.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import java.sql.Timestamp;
+import java.util.Objects;
 
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserEntity extends BaseEntity {
     @Basic
     @Column(name = "name", nullable = false)

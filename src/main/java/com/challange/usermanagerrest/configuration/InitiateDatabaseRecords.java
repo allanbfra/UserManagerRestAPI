@@ -17,7 +17,6 @@ import java.time.Instant;
 public class InitiateDatabaseRecords {
     private static final Logger log = LoggerFactory.getLogger(InitiateDatabaseRecords.class);
 
-
     @Bean
     CommandLineRunner initDatabase(UserRepository repository) {
         if(repository.findAll().size()<1) {
