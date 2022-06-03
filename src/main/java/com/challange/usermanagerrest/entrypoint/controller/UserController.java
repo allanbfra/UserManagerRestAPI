@@ -2,6 +2,7 @@ package com.challange.usermanagerrest.entrypoint.controller;
 
 import com.challange.usermanagerrest.core.model.User;
 import com.challange.usermanagerrest.core.service.UserService;
+import com.challange.usermanagerrest.core.usecase.UserUseCase;
 import com.challange.usermanagerrest.entrypoint.controller.request.UserRequest;
 import com.challange.usermanagerrest.entrypoint.controller.response.DataModelResponse;
 import com.challange.usermanagerrest.entrypoint.controller.response.UserDataModelResponse;
@@ -18,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +28,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.security.InvalidParameterException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -36,6 +35,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserUseCase userUseCase;
     @Autowired
     private DataUserMapper dataUserMapper;
 
@@ -72,7 +73,7 @@ public class UserController {
     public ResponseEntity<User> getuserByCpf(
             @Parameter(description = "cpf of user to be retrieved") @RequestParam String cpf){
         
-        User user = userService.getUserByCpf(cpf);
+        User user = userUseCase.validateAndFind(cpf);
 
         if(user!=null) {
             return new ResponseEntity(dataUserMapper.modelToResponse(user), HttpStatus.OK);
@@ -94,7 +95,7 @@ public class UserController {
     @PostMapping
     public ResponseEntity<DataModelResponse<UserDataModelResponse>> createUser(@RequestBody UserRequest request) {
 
-        User user = userService.saveUser(dataUserMapper.requestToModel(request));
+        User user = userUseCase.validateAndSave(dataUserMapper.requestToModel(request));
 
         if(user!=null) {
             return new ResponseEntity(dataUserMapper.modelToResponse(user), HttpStatus.CREATED);
